@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpamMailML.Model", "SpamMai
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpamMailML.ConsoleApp", "SpamMailML.ConsoleApp\SpamMailML.ConsoleApp.csproj", "{F2E117B9-D47D-4AD4-A22D-5D711922E5BB}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SpamMailDetector", "SpamMailDetector\SpamMailDetector.vdproj", "{A288374B-DD00-40A1-821B-26A7B1817669}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SpamMailSetup", "SpamMailSetup\SpamMailSetup.vdproj", "{9DC214EA-D699-4804-8C32-E864C7FF5225}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,12 +57,12 @@ Global
 		{F2E117B9-D47D-4AD4-A22D-5D711922E5BB}.Release|x64.Build.0 = Release|x64
 		{F2E117B9-D47D-4AD4-A22D-5D711922E5BB}.Release|x86.ActiveCfg = Release|x86
 		{F2E117B9-D47D-4AD4-A22D-5D711922E5BB}.Release|x86.Build.0 = Release|x86
-		{A288374B-DD00-40A1-821B-26A7B1817669}.Debug|Any CPU.ActiveCfg = Debug
-		{A288374B-DD00-40A1-821B-26A7B1817669}.Debug|x64.ActiveCfg = Debug
-		{A288374B-DD00-40A1-821B-26A7B1817669}.Debug|x86.ActiveCfg = Debug
-		{A288374B-DD00-40A1-821B-26A7B1817669}.Release|Any CPU.ActiveCfg = Release
-		{A288374B-DD00-40A1-821B-26A7B1817669}.Release|x64.ActiveCfg = Release
-		{A288374B-DD00-40A1-821B-26A7B1817669}.Release|x86.ActiveCfg = Release
+		{9DC214EA-D699-4804-8C32-E864C7FF5225}.Debug|Any CPU.ActiveCfg = Debug
+		{9DC214EA-D699-4804-8C32-E864C7FF5225}.Debug|x64.ActiveCfg = Debug
+		{9DC214EA-D699-4804-8C32-E864C7FF5225}.Debug|x86.ActiveCfg = Debug
+		{9DC214EA-D699-4804-8C32-E864C7FF5225}.Release|Any CPU.ActiveCfg = Release
+		{9DC214EA-D699-4804-8C32-E864C7FF5225}.Release|x64.ActiveCfg = Release
+		{9DC214EA-D699-4804-8C32-E864C7FF5225}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
