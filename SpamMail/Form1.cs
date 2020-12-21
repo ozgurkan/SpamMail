@@ -35,7 +35,7 @@ namespace SpamMail
             lstMsg.Columns.Add("Konu", 380);
             lstMsg.Columns.Add("İçerik", 600);
             lstMsg.Columns.Add("Spam", 60);
-            lstMsg.Columns.Add("Rate", 80);
+            lstMsg.Columns.Add("Rate", 70);
             lstMsg.FullRowSelect = true;
             lstMsg.ShowItemToolTips = true;
         }
@@ -85,8 +85,11 @@ namespace SpamMail
             }
             else
             {
+                
                 if (Regex.IsMatch(textBox1.Text, @"(@)"))
                 {
+                    this.Size = new Size(1600, 450);
+                    this.Location = new Point(50, 50);
                     username = textBox1.Text.Split('@')[0];
                     domain = textBox1.Text.Split('@')[1];
 
@@ -106,7 +109,9 @@ namespace SpamMail
                         itemview.PropertySet = itempropertyset;
 
                         //FindItemsResults<Item> findResults = service.FindItems(WellKnownFolderName.Inbox, "subject:TODO", itemview);
-
+                        this.Size = new Size(1600, 800);
+                        lstMsg.Width = 1560;
+                        lstMsg.Height = 650;
                         try
                         {
                             FindItemsResults<Item> findResults = exchange.FindItems(WellKnownFolderName.Inbox, filter, new ItemView(100));
@@ -143,7 +148,7 @@ namespace SpamMail
                                 ListViewItem listitem = new ListViewItem(new[]
                                 {
                                 message.DateTimeReceived.ToString(), message.From.Name.ToString() + "(" + message.From.Address.ToString() + ")", message.Subject,
-                                content,durum,predictionResult.Score.Max().ToString()                                
+                                content,durum,predictionResult.Score.Max().ToString("0.##")
                                 });
                                 
                                 lstMsg.Items.Add(listitem);
@@ -151,7 +156,7 @@ namespace SpamMail
                             }
                             if (findResults.Items.Count <= 0)
                             {
-                                lstMsg.Items.Add("No Messages found!!");
+                                lstMsg.Items.Add("Yeni Mail Bulunamadı.!!");
 
                             }
                             colorListcolor(lstMsg);
@@ -163,6 +168,16 @@ namespace SpamMail
                             textBox2.Text = "";
                             lblMsg.Text = "";
                             lblMsg.Visible = false;
+                            this.Size = new Size(800, 450);
+                            Screen screen = Screen.FromControl(this);
+
+                            Rectangle workingArea = screen.WorkingArea;
+                            this.Location = new Point()
+                            {
+                                X = Math.Max(workingArea.X, workingArea.X + (workingArea.Width - this.Width) / 2),
+                                Y = Math.Max(workingArea.Y, workingArea.Y + (workingArea.Height - this.Height) / 2)
+                            };
+
                         }                    
                     }
                 }
