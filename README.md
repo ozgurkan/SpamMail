@@ -1,4 +1,4 @@
 # SpamMail
 Doğal Dil İşleme Proje 2020-2021 DÖNEM PROJESİ
 
-![Screenshot](GirisEkranı.png)
+![Screenshot](GirisEkranı.PNG)
