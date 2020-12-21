@@ -14,11 +14,17 @@ using SpamMailML.Model;
 using System.Text.RegularExpressions;
 using NPoco.FluentMappings;
 using Chilkat;
+using System.Net;
+using System.Net.Mail;
+using System.Web.Mail;
+using MailMessage = System.Net.Mail.MailMessage;
+using AE.Net.Mail;
 
 namespace SpamMail
 {
     public partial class Form1 : Form
     {
+        static ImapClient IC;
         ExchangeService exchange = null;
         string[] basliklar = new string[500];
         string[] icerikler = new string[500];
@@ -92,40 +98,127 @@ namespace SpamMail
                     this.Location = new Point(50, 50);
                     username = textBox1.Text.Split('@')[0];
                     domain = textBox1.Text.Split('@')[1];
-
+                    
                     lblMsg.Visible = true;
                     i = 0;
                     lstMsg.Items.Clear();
-                    ConnectToExchangeServer();
-                    TimeSpan ts = new TimeSpan(0, -24, 0, 0);
-                    DateTime date = DateTime.Now.Add(ts);
-                    SearchFilter.IsGreaterThanOrEqualTo filter = new SearchFilter.IsGreaterThanOrEqualTo(ItemSchema.DateTimeReceived, date);
-
-                    if (exchange != null)
+                    if (domain=="hotmail.com")
                     {
-                        PropertySet itempropertyset = new PropertySet(BasePropertySet.FirstClassProperties);
-                        itempropertyset.RequestedBodyType = BodyType.Text;
-                        ItemView itemview = new ItemView(1000);
-                        itemview.PropertySet = itempropertyset;
+                        ConnectToExchangeServer();
+                        TimeSpan ts = new TimeSpan(0, -24, 0, 0);
+                        DateTime date = DateTime.Now.Add(ts);
+                        SearchFilter.IsGreaterThanOrEqualTo filter = new SearchFilter.IsGreaterThanOrEqualTo(ItemSchema.DateTimeReceived, date);
 
-                        //FindItemsResults<Item> findResults = service.FindItems(WellKnownFolderName.Inbox, "subject:TODO", itemview);
-                        this.Size = new Size(1600, 800);
-                        lstMsg.Width = 1560;
-                        lstMsg.Height = 650;
-                        button1.Text = "Yenile";
+                        if (exchange != null)
+                        {
+                            PropertySet itempropertyset = new PropertySet(BasePropertySet.FirstClassProperties);
+                            itempropertyset.RequestedBodyType = BodyType.Text;
+                            ItemView itemview = new ItemView(1000);
+                            itemview.PropertySet = itempropertyset;
+
+                            //FindItemsResults<Item> findResults = service.FindItems(WellKnownFolderName.Inbox, "subject:TODO", itemview);
+                            this.Size = new Size(1600, 800);
+                            lstMsg.Width = 1560;
+                            lstMsg.Height = 650;
+                            button1.Text = "Yenile";
+                            try
+                            {
+                                FindItemsResults<Item> findResults = exchange.FindItems(WellKnownFolderName.Inbox, filter, new ItemView(100));
+                                foreach (Item item in findResults)
+                                {
+                                    lstMsg.Visible = true;
+                                    item.Load(itempropertyset);
+                                    String content = item.Body;
+                                    icerikler[i] = content;
+
+                                    ModelInput sampleData = new ModelInput()
+                                    {
+                                        Col1 = content,
+                                    };
+
+                                    // Make a single prediction on the sample data and print results
+                                    var predictionResult = ConsumeModel.Predict(sampleData);
+
+                                    String durum;
+                                    if (predictionResult.Prediction == "spam")
+                                    {
+                                        durum = "YES";
+                                    }
+                                    else
+                                    {
+                                        durum = "NO";
+                                    }
+
+                                    EmailMessage message = EmailMessage.Bind(exchange, item.Id);
+                                    basliklar[i] = message.Subject;
+                                    i++;
+                                    ListViewItem listitem = new ListViewItem(new[]
+                                    {
+                                         message.DateTimeReceived.ToString(), message.From.Name.ToString() + "(" + message.From.Address.ToString() + ")", message.Subject,
+                                         content,durum,predictionResult.Score.Max().ToString("0.##")
+                                     });
+
+                                    lstMsg.Items.Add(listitem);
+
+                                }
+                                if (findResults.Items.Count <= 0)
+                                {
+                                    lstMsg.Items.Add("Yeni Mail Bulunamadı.!!");
+
+                                }
+                                colorListcolor(lstMsg);
+                            }
+                            catch
+                            {
+                                MessageBox.Show("Mail adresi veya şifre yanlış.");
+                                textBox1.Text = "";
+                                textBox2.Text = "";
+                                lblMsg.Text = "";
+                                lblMsg.Visible = false;
+                                this.Size = new Size(800, 450);
+                                button1.Text = "Giriş";
+                                Screen screen = Screen.FromControl(this);
+
+                                Rectangle workingArea = screen.WorkingArea;
+                                this.Location = new Point()
+                                {
+                                    X = Math.Max(workingArea.X, workingArea.X + (workingArea.Width - this.Width) / 2),
+                                    Y = Math.Max(workingArea.Y, workingArea.Y + (workingArea.Height - this.Height) / 2)
+                                };
+                            }
+                        }
+                    }
+                    else if (domain=="gmail.com")
+                    {
+                        lblMsg.Text = "IMAP Server'a bağlanılıyor....";
+                        lblMsg.Refresh();
                         try
                         {
-                            FindItemsResults<Item> findResults = exchange.FindItems(WellKnownFolderName.Inbox, filter, new ItemView(100));
-                            foreach (Item item in findResults)
-                            {
-                                lstMsg.Visible = true;
-                                item.Load(itempropertyset);
-                                String content = item.Body;
-                                icerikler[i] = content;
+                            IC = new ImapClient("imap.gmail.com", textBox1.Text, textBox2.Text, AuthMethods.Login, 993, true);
+                            lblMsg.Text = "IMAP Server'a bağlandı.\nGünlük Mailler Gösteriliyor.";
+                            lblMsg.Refresh();
+                            IC.SelectMailbox("INBOX");
+                            int mailCount = IC.GetMessageCount();
+                            mailCount--;
+                            var Email = IC.GetMessage(mailCount);
+                            DateTime localDate = DateTime.Now;
+                            TimeSpan baseInterval = new TimeSpan(24, 0, 0);
+                            var value = localDate.Subtract(Email.Date);                           
+                            
+                            this.Size = new Size(1600, 800);
+                            lstMsg.Visible = true;
+                            lstMsg.Width = 1560;
+                            lstMsg.Height = 650;
+                            button1.Text = "Yenile";
 
+                            while (TimeSpan.Compare(baseInterval, value) == 1)
+                            {
+                                basliklar[i] = Email.Subject.ToString();
+                                icerikler[i] = Email.Body.ToString();                                
+                                i++;
                                 ModelInput sampleData = new ModelInput()
                                 {
-                                    Col1 = content,
+                                    Col1 = Email.Body,
                                 };
 
                                 // Make a single prediction on the sample data and print results
@@ -134,54 +227,71 @@ namespace SpamMail
                                 String durum;
                                 if (predictionResult.Prediction == "spam")
                                 {
-                                    durum = "YES";                                                                     
+                                    durum = "YES";
                                 }
                                 else
                                 {
-                                    durum = "NO";                                    
+                                    durum = "NO";
                                 }
-
-
-
-                                EmailMessage message = EmailMessage.Bind(exchange, item.Id);
-                                basliklar[i] = message.Subject;
-                                i++;
+                                var content = Email.Body.ToString();
                                 ListViewItem listitem = new ListViewItem(new[]
-                                {
-                                message.DateTimeReceived.ToString(), message.From.Name.ToString() + "(" + message.From.Address.ToString() + ")", message.Subject,
-                                content,durum,predictionResult.Score.Max().ToString("0.##")
-                                });
-                                
-                                lstMsg.Items.Add(listitem);
-                                                              
-                            }
-                            if (findResults.Items.Count <= 0)
-                            {
-                                lstMsg.Items.Add("Yeni Mail Bulunamadı.!!");
+                                    {
+                                         Email.Date.ToString(), Email.From.Address.ToString(), Email.Subject.ToString(),
+                                         content,durum,predictionResult.Score.Max().ToString("0.##")
+                                     });
 
+                                lstMsg.Items.Add(listitem);
+                                //MessageBox.Show(Email.Subject.ToString());
+                                mailCount--;
+                                Email = IC.GetMessage(mailCount);
+                                value = localDate.Subtract(Email.Date);
                             }
                             colorListcolor(lstMsg);
                         }
                         catch
                         {
-                            MessageBox.Show("Mail adresi veya şifre yanlış.");
-                            textBox1.Text = "";
-                            textBox2.Text = "";
-                            lblMsg.Text = "";
-                            lblMsg.Visible = false;
-                            this.Size = new Size(800, 450);
-                            button1.Text = "Giriş";
-                            Screen screen = Screen.FromControl(this);
+                            MessageBox.Show("Lütfen email güvenlik ayarlarından Daha az güvenli uygulamalara izin ver: AÇIK yapınız.");
+                        }
+                        
+                        //var cikar = Email.Date - date;
+                        //MessageBox.Show(cikar.ToString());
 
-                            Rectangle workingArea = screen.WorkingArea;
-                            this.Location = new Point()
+                        /*MessageBox.Show(date.ToString());
+                        MessageBox.Show(Convert.ToDateTime(Email.Date).ToString());
+                        MessageBox.Show(Email.Subject);*/
+                        /*var value = Convert.ToDateTime(Email.Date).Subtract(date);
+                        MessageBox.Show(value.ToString());*/
+
+                        //MessageBox.Show(Email.ToString());
+
+                        //Mail atmak için
+                        /*try
+                        {
+                            using (SmtpClient client=new SmtpClient("smtp.gmail.com", 587))
                             {
-                                X = Math.Max(workingArea.X, workingArea.X + (workingArea.Width - this.Width) / 2),
-                                Y = Math.Max(workingArea.Y, workingArea.Y + (workingArea.Height - this.Height) / 2)
-                            };
+                                client.EnableSsl = true;
+                                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                client.UseDefaultCredentials = false;
+                                client.Credentials = new NetworkCredential(textBox1.Text,textBox2.Text);
+                                MailMessage msgObj = new MailMessage();
+                                msgObj.To.Add(Alıcı mail adresi);
+                                msgObj.From = new MailAddress(gönderici mail adresi);
+                                msgObj.Subject=Mesqj Konusu
+                                msgObj.Body=Mesaj İçeriği
+                                client.Send(msgObj);
 
-                        }                    
+                            }
+                        }
+                        catch
+                        {
+                            MessageBox.Show("Servera bağlanamadı");
+                        }*/
                     }
+                    else
+                    {
+                        MessageBox.Show("Geçersiz bir domain ismi girdiniz.Lütfen kontrol edin!");
+                    }
+
                 }
                 else
                 {
