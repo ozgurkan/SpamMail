@@ -77,8 +77,8 @@ namespace SpamMail
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
 
+            lstMsg.Visible = false;
             if (textBox1.Text=="" || textBox2.Text=="")
             {
                 MessageBox.Show("Lütfen mail adresi ve şifrenizi giriniz.");
@@ -112,6 +112,7 @@ namespace SpamMail
                         this.Size = new Size(1600, 800);
                         lstMsg.Width = 1560;
                         lstMsg.Height = 650;
+                        button1.Text = "Yenile";
                         try
                         {
                             FindItemsResults<Item> findResults = exchange.FindItems(WellKnownFolderName.Inbox, filter, new ItemView(100));
@@ -169,6 +170,7 @@ namespace SpamMail
                             lblMsg.Text = "";
                             lblMsg.Visible = false;
                             this.Size = new Size(800, 450);
+                            button1.Text = "Giriş";
                             Screen screen = Screen.FromControl(this);
 
                             Rectangle workingArea = screen.WorkingArea;
