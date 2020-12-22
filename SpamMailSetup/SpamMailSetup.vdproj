@@ -6743,7 +6743,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SpamMailSetup"
         "ProductCode" = "8:{914EE164-831B-4C11-B42D-17F206C131DF}"
-        "PackageCode" = "8:{4D59C4BB-819D-48EC-A998-191AC59597B4}"
+        "PackageCode" = "8:{A5C50DBC-EF7A-4126-A69D-C24882C7D5DA}"
         "UpgradeCode" = "8:{7D2E84F7-6F43-4B24-9ED7-6185BF51B916}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
