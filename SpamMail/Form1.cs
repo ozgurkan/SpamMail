@@ -1,29 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Exchange.WebServices.Data;
-using Mono.Web;
 using JR.Utils.GUI.Forms;
 using SpamMailML.Model;
 using System.Text.RegularExpressions;
-using NPoco.FluentMappings;
-using Chilkat;
-using System.Net;
-using System.Net.Mail;
-using System.Web.Mail;
-using MailMessage = System.Net.Mail.MailMessage;
 using AE.Net.Mail;
+
 
 namespace SpamMail
 {
     public partial class Form1 : Form
-    {
+    {        
         static ImapClient IC;
         ExchangeService exchange = null;
         string[] basliklar = new string[500];
@@ -58,8 +47,8 @@ namespace SpamMail
             try
             {
                 exchange = new ExchangeService(ExchangeVersion.Exchange2007_SP1);
-                exchange.Credentials = new WebCredentials(textBox1.Text, textBox2.Text, domain);
-                exchange.AutodiscoverUrl(textBox1.Text);
+                exchange.Credentials = new WebCredentials(textBox1.Text, textBox2.Text,domain);
+                exchange.AutodiscoverUrl(textBox1.Text,RedirectionCallback);
 
                 lblMsg.Text = "Exchange Server'a bağlandı : " + exchange.Url.Host+"\n Günlük Mailler Gösteriliyor.";
                 lblMsg.Refresh();
@@ -90,8 +79,7 @@ namespace SpamMail
                 MessageBox.Show("Lütfen mail adresi ve şifrenizi giriniz.");
             }
             else
-            {
-                
+            {                
                 if (Regex.IsMatch(textBox1.Text, @"(@)"))
                 {
                     this.Size = new Size(1600, 450);
@@ -102,7 +90,7 @@ namespace SpamMail
                     lblMsg.Visible = true;
                     i = 0;
                     lstMsg.Items.Clear();
-                    if (domain=="hotmail.com")
+                    if (domain=="hotmail.com" || domain == "std.yildiz.edu.tr")
                     {
                         ConnectToExchangeServer();
                         TimeSpan ts = new TimeSpan(0, -24, 0, 0);
@@ -188,7 +176,7 @@ namespace SpamMail
                             }
                         }
                     }
-                    else if (domain=="gmail.com")
+                    else if (domain== "gmail.com")
                     {
                         lblMsg.Text = "IMAP Server'a bağlanılıyor....";
                         lblMsg.Refresh();
@@ -251,41 +239,7 @@ namespace SpamMail
                         catch
                         {
                             MessageBox.Show("Lütfen email güvenlik ayarlarından Daha az güvenli uygulamalara izin ver: AÇIK yapınız.");
-                        }
-                        
-                        //var cikar = Email.Date - date;
-                        //MessageBox.Show(cikar.ToString());
-
-                        /*MessageBox.Show(date.ToString());
-                        MessageBox.Show(Convert.ToDateTime(Email.Date).ToString());
-                        MessageBox.Show(Email.Subject);*/
-                        /*var value = Convert.ToDateTime(Email.Date).Subtract(date);
-                        MessageBox.Show(value.ToString());*/
-
-                        //MessageBox.Show(Email.ToString());
-
-                        //Mail atmak için
-                        /*try
-                        {
-                            using (SmtpClient client=new SmtpClient("smtp.gmail.com", 587))
-                            {
-                                client.EnableSsl = true;
-                                client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                                client.UseDefaultCredentials = false;
-                                client.Credentials = new NetworkCredential(textBox1.Text,textBox2.Text);
-                                MailMessage msgObj = new MailMessage();
-                                msgObj.To.Add(Alıcı mail adresi);
-                                msgObj.From = new MailAddress(gönderici mail adresi);
-                                msgObj.Subject=Mesqj Konusu
-                                msgObj.Body=Mesaj İçeriği
-                                client.Send(msgObj);
-
-                            }
-                        }
-                        catch
-                        {
-                            MessageBox.Show("Servera bağlanamadı");
-                        }*/
+                        }                        
                     }
                     else
                     {
@@ -300,9 +254,28 @@ namespace SpamMail
             }           
         }
 
+        static bool RedirectionCallback(string url)
+        {
+            bool redirectionValidated = false;
+            Uri redirectionUri = new Uri(url);
+
+            //There are two ways of implementing a RedirectionCallback scheme
+
+            // Way 1: Return true if the URL is an HTTPS URL.
+            //return url.ToLower().StartsWith("https://");
+            if (redirectionUri.Scheme == "https")
+                redirectionValidated = true;
+
+            //Way 2: check if url is autodiscovery url
+            if (url.Equals(
+                "https://autodiscover-s.outlook.com/autodiscover/autodiscover.xml"))
+                redirectionValidated = true;
+
+            return redirectionValidated;
+        }
+
         public static void colorListcolor(ListView lsvMain)
         {
-
             foreach (ListViewItem lvw in lsvMain.Items)
             {
                 lvw.UseItemStyleForSubItems = false;
