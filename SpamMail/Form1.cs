@@ -37,7 +37,7 @@ namespace SpamMail
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            //
+            
         }
 
         public void ConnectToExchangeServer()
