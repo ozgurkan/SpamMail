@@ -1390,12 +1390,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_54C45203E7B624EC53F1EAECB2A98298"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_CBE0F6208C884A2398AA8EA9FD7E2D2B"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2149,6 +2143,12 @@
         "OwnerKey" = "8:_1B7F638CDDE4AEEE255522976DD25ABE"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_54C45203E7B624EC53F1EAECB2A98298"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -2206,6 +2206,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -6735,7 +6743,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SpamMailSetup"
         "ProductCode" = "8:{914EE164-831B-4C11-B42D-17F206C131DF}"
-        "PackageCode" = "8:{2C165F06-939E-4D8E-B9A7-5A45F882247B}"
+        "PackageCode" = "8:{4D59C4BB-819D-48EC-A998-191AC59597B4}"
         "UpgradeCode" = "8:{7D2E84F7-6F43-4B24-9ED7-6185BF51B916}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
